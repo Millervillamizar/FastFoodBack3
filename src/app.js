@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require("express");
 const session = require('express-session');
 const passport = require('./config/googleAuth'); // Asegúrate de que la ruta sea correcta
@@ -9,8 +10,25 @@ const commentRoutes = require("./routes/commentRoutes"); // Importa las rutas de
 const cors = require("cors");
 const cron = require('node-cron');
 const { checkOrderStatusAndSendEmail } = require('./middleware/orderStatusMiddleware'); // Importa el middleware
+const { Client } = require('pg');
 const app = express();
 const path = require('path');
+
+// Configuración de la base de datos
+const client = new Client({
+  connectionString: process.env.DATABASE_URL || `postgresql://${process.env.PGUSER}:${process.env.PGPASSWORD}@${process.env.PGHOST}:${process.env.PGPORT}/${process.env.PGDATABASE}`,
+  ssl: {
+    rejectUnauthorized: false
+  }
+});
+
+client.connect(err => {
+  if (err) {
+    console.error('Connection error', err.stack);
+  } else {
+    console.log('Connected to database');
+  }
+});
 
 // Middlewares
 
@@ -40,11 +58,11 @@ app.use('/api/users', userRoutes); // Ruta para manejar usuarios y autenticació
 app.use('/api/comments', commentRoutes); // Ruta para manejar comentarios
 
 app.use((req, res, next) => {// Para crear la preferencia de Mercado pago
-	res.setHeader(
-	  'Content-Security-Policy',
-	  "script-src 'self' 'https://www.mercadopago.com.ar';"
-	);
-	next();
+  res.setHeader(
+    'Content-Security-Policy',
+    "script-src 'self' 'https://www.mercadopago.com.ar';"
+  );
+  next();
 });
 
 // Programación del cron job para verificar el estado de las órdenes y enviar correos
@@ -53,3 +71,4 @@ cron.schedule('*/30 * * * * *', async () => {
 });
 
 module.exports = app;
+
