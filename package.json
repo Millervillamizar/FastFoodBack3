@@ -4,11 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon index.js",
-    "migrate": "npx knex migrate:latest --knexfile src/db/knexfile.js",
-    "datastart": "npx knex seed:run --knexfile src/db/knexfile.js"
-  },
+  "test": "echo \"Error: no test specified\" && exit 1",
+  "start": "NODE_ENV=production nodemon index.js",
+  "migrate": "NODE_ENV=production npx knex migrate:latest --knexfile src/db/knexfile.js",
+  "datastart": "NODE_ENV=production npx knex seed:run --knexfile src/db/knexfile.js"
+},
   "keywords": [],
   "author": "",
   "license": "ISC",
